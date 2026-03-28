@@ -12,4 +12,12 @@ jobs:
     steps:
       - name: Trigger Coolify Deployment
         run: |
-          curl -X GET "${{ secrets.COOLIFY_DEPLOY_WEBHOOK }}&branch=${{ github.head_ref }}"
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X GET "${{ secrets.COOLIFY_DEPLOY_WEBHOOK }}&branch=${{ github.head_ref }}" \
+               -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}")
+
+          if [ "$RESPONSE" -eq 200 ]; then
+            echo "Deployment triggered successfully!"
+          else
+            echo "Deployment failed with status: $RESPONSE"
+            exit 1
+          fi
