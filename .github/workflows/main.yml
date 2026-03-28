@@ -2,13 +2,18 @@ name: Preview Deploy (Label Triggered)
 
 on:
   pull_request:
-    types: [labeled]
+    # 'synchronize' triggers a new build when you push fresh code to the PR
+    # 'unlabeled' or 'closed' allows us to kill the container to save RAM
+    types: [labeled, synchronize, unlabeled, closed]
 
 jobs:
   deploy:
-    if: github.event.label.name == 'deploy-preview'
+    # Run only if the label is present (handles initial labeling and new commits on that PR)
+    if: |
+      contains(github.event.pull_request.labels.*.name, 'deploy-preview') && 
+      (github.event.action == 'labeled' || github.event.action == 'synchronize')
+
     runs-on: ubuntu-latest
-    # ADD THESE PERMISSIONS HERE
     permissions:
       contents: read
       pull-requests: write
@@ -27,9 +32,26 @@ jobs:
             const prNumber = context.issue.number;
             const previewUrl = `http://${prNumber}.vs11mjbyy6mnarvetuzcbdtt.178.104.106.0.sslip.io`;
 
-            github.rest.issues.createComment({
-              issue_number: prNumber,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: ` **Preview Deployment Triggered!**\n\nYour frontend changes are being built. Once ready, you can view them here:\n${previewUrl}\n\n*Note: It may take a minute for the container to start.*`
-            })
+            // This only posts a comment if the action was 'labeled' to avoid spamming every commit
+            if (context.payload.action === 'labeled') {
+              github.rest.issues.createComment({
+                issue_number: prNumber,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: ` **Preview Deployment Triggered!**\n\nYour frontend changes are being built. Once ready, you can view them here:\n${previewUrl}\n\n*Note: It may take a minute for the container to start.*`
+              })
+            }
+
+  cleanup:
+    # Run if the PR is closed OR if the 'deploy-preview' label is removed
+    if: |
+      github.event.action == 'closed' || 
+      (github.event.action == 'unlabeled' && github.event.label.name == 'deploy-preview')
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Stop Coolify Preview
+        run: |
+          # Note: Ensure you have 'Auto Cleanup' enabled in Coolify Settings -> Preview Deployments.
+          # If you want to force-kill via API, use the 'Stop' endpoint if your version of Coolify supports it.
+          echo "PR closed or Label removed. Coolify will now clean up the preview container for branch ${{ github.head_ref }}."
