@@ -22,7 +22,8 @@ jobs:
     steps:
       - name: Trigger Coolify Deployment
         run: |
-          curl -X GET "${{ secrets.COOLIFY_DEPLOY_WEBHOOK }}&branch=${{ github.head_ref }}" \
+          # Replace 'YOUR_APP_UUID' with the string you found
+          curl -X POST "http://178.104.106.0:8000/api/v1/applications/h5k0i96ckappu8zbxokld7wo/deploy?branch=${{ github.head_ref }}&pr=${{ github.event.number }}" \
                -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
 
       - name: Post Preview URL to PR
