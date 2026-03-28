@@ -1,6 +1,6 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router';
 
-export const Route = createFileRoute('/')({ component: App })
+export const Route = createFileRoute('/')({ component: App });
 
 function App() {
   return (
@@ -77,11 +77,11 @@ function App() {
             <code>src/components/Footer.tsx</code> for brand links.
           </li>
           <li>
-            Add routes in <code>src/routes</code> and tweak visual tokens in{' '}
-            <code>src/styles.css</code>.
+            Add routes in <code>src/routes</code> and tweak visual tokens in
+            dsadasda <code>src/styles.css</code>.
           </li>
         </ul>
       </section>
     </main>
-  )
+  );
 }
