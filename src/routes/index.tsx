@@ -1,8 +1,13 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { Link, createFileRoute } from '@tanstack/react-router';
+import { fetchJikan, type AnimeEntry } from '../serverFns/jikan';
 
-export const Route = createFileRoute('/')({ component: App });
+export const Route = createFileRoute('/')({
+  loader: () => fetchJikan(),
+  component: App,
+});
 
 function App() {
+  const anime = Route.useLoaderData();
   return (
     <main className="page-wrap px-4 pb-8 pt-14">
       <section className="island-shell rise-in relative overflow-hidden rounded-[2rem] px-6 py-10 sm:px-10 sm:py-14">
@@ -80,6 +85,43 @@ function App() {
             Add routes in <code>src/routes</code> and tweak visual tokens in
             <code>src/styles.css</code>.
           </li>
+        </ul>
+      </section>
+
+      <section className="island-shell mt-8 rounded-2xl p-6">
+        <p className="island-kicker mb-2">Jikan API — Server Function Test</p>
+        <h2 className="mb-4 text-xl font-bold text-[var(--sea-ink)]">
+          Anime search: "naruto"
+        </h2>
+        <ul className="space-y-4">
+          {anime.map((item: AnimeEntry) => (
+            <li key={item.mal_id}>
+              <Link
+                to="/anime/$id"
+                params={{ id: String(item.mal_id) }}
+                className="flex items-start gap-4 rounded-xl p-2 no-underline transition hover:bg-[rgba(79,184,178,0.08)]"
+              >
+                <img
+                  src={item.images.jpg.image_url}
+                  alt={item.title}
+                  className="h-20 w-14 rounded-lg object-cover"
+                />
+                <div>
+                  <p className="font-semibold text-[var(--sea-ink)]">
+                    {item.title}{' '}
+                    {item.score && (
+                      <span className="text-sm font-normal text-[var(--sea-ink-soft)]">
+                        ★ {item.score}
+                      </span>
+                    )}
+                  </p>
+                  <p className="mt-1 line-clamp-3 text-sm text-[var(--sea-ink-soft)]">
+                    {item.synopsis ?? 'No synopsis available.'}
+                  </p>
+                </div>
+              </Link>
+            </li>
+          ))}
         </ul>
       </section>
     </main>
