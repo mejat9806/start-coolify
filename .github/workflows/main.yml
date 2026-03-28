@@ -17,14 +17,18 @@ jobs:
       issues: write
 
     steps:
+      - name: Force Coolify to Sync PRs
+        # This tells Coolify to refresh its list of PRs from GitHub
+        run: |
+          curl -i -X GET "http://178.104.106.0:8000/api/v1/applications/h5k0i96ckappu8zbxokld7wo/pull-requests" \
+               -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+
       - name: Trigger Coolify Deployment
         run: |
-          # Matching the exact structure from your network screenshot
-          # Note: 'tag' is usually not needed for App UUIDs, but we include it to match your trace.
+          # Now that we've synced, we trigger the build
           curl -i -X POST "http://178.104.106.0:8000/api/v1/deploy?uuid=h5k0i96ckappu8zbxokld7wo&pr=${{ github.event.number }}&branch=${{ github.head_ref }}&force=true" \
                -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}" \
                -H "Accept: application/json"
-
       - name: Post Preview URL to PR
         uses: actions/github-script@v7
         with:
