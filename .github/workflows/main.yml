@@ -2,13 +2,11 @@ name: Preview Deploy (Label Triggered)
 
 on:
   pull_request:
-    # 'synchronize' triggers a new build when you push fresh code to the PR
-    # 'unlabeled' or 'closed' allows us to kill the container to save RAM
     types: [labeled, synchronize, unlabeled, closed]
 
 jobs:
   deploy:
-    # Run only if the label is present (handles initial labeling and new commits on that PR)
+    # Trigger if the label 'deploy-preview' is present on a new label or new code push
     if: |
       contains(github.event.pull_request.labels.*.name, 'deploy-preview') && 
       (github.event.action == 'labeled' || github.event.action == 'synchronize')
@@ -22,8 +20,8 @@ jobs:
     steps:
       - name: Trigger Coolify Deployment
         run: |
-          # Replace 'YOUR_APP_UUID' with the string you found
-          curl -X POST "http://178.104.106.0:8000/api/v1/applications/h5k0i96ckappu8zbxokld7wo/deploy?branch=${{ github.head_ref }}&pr=${{ github.event.number }}" \
+          # Use the 'deploy' endpoint with your Application UUID
+          curl -X POST "http://178.104.106.0:8000/api/v1/deploy?uuid=h5k0i96ckappu8zbxokld7wo&branch=${{ github.head_ref }}&pull_request_id=${{ github.event.number }}" \
                -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
 
       - name: Post Preview URL to PR
@@ -33,18 +31,18 @@ jobs:
             const prNumber = context.issue.number;
             const previewUrl = `http://${prNumber}.vs11mjbyy6mnarvetuzcbdtt.178.104.106.0.sslip.io`;
 
-            // This only posts a comment if the action was 'labeled' to avoid spamming every commit
+            // Only post the comment when the label is first added
             if (context.payload.action === 'labeled') {
               github.rest.issues.createComment({
                 issue_number: prNumber,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: ` **Preview Deployment Triggered!**\n\nYour frontend changes are being built. Once ready, you can view them here:\n${previewUrl}\n\n*Note: It may take a minute for the container to start.*`
+                body: `🚀 **Preview Deployment Triggered!**\n\nYour frontend changes are being built. Once ready, you can view them here:\n${previewUrl}\n\n*Note: It may take a minute for the build to finish.*`
               })
             }
 
   cleanup:
-    # Run if the PR is closed OR if the 'deploy-preview' label is removed
+    # Auto-cleanup logic for when you're done reviewing
     if: |
       github.event.action == 'closed' || 
       (github.event.action == 'unlabeled' && github.event.label.name == 'deploy-preview')
@@ -53,6 +51,4 @@ jobs:
     steps:
       - name: Stop Coolify Preview
         run: |
-          # Note: Ensure you have 'Auto Cleanup' enabled in Coolify Settings -> Preview Deployments.
-          # If you want to force-kill via API, use the 'Stop' endpoint if your version of Coolify supports it.
-          echo "PR closed or Label removed. Coolify will now clean up the preview container for branch ${{ github.head_ref }}."
+          echo "PR closed/unlabeled. Coolify 'Auto Cleanup' (in App Settings) will stop the container for branch ${{ github.head_ref }}."
