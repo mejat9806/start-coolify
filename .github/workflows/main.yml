@@ -8,10 +8,15 @@ jobs:
   deploy:
     if: github.event.label.name == 'deploy-preview'
     runs-on: ubuntu-latest
+    # ADD THESE PERMISSIONS HERE
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+
     steps:
       - name: Trigger Coolify Deployment
         run: |
-          # Note: Ensure your COOLIFY_TOKEN and WEBHOOK are correct to avoid "Unauthenticated"
           curl -X GET "${{ secrets.COOLIFY_DEPLOY_WEBHOOK }}&branch=${{ github.head_ref }}" \
                -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
 
@@ -19,13 +24,12 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const branch = context.payload.pull_request.head.ref;
-            const prNumber = context.payload.pull_request.number;
-            // Replace 'yourdomain.com' with your actual preview domain pattern
-            const previewUrl = `http://${prNumber}.vs11mjbyy6mnarvetuzcbdtt.178.104.106.0.sslip.io`;            
+            const prNumber = context.issue.number;
+            const previewUrl = `http://${prNumber}.vs11mjbyy6mnarvetuzcbdtt.178.104.106.0.sslip.io`;
+
             github.rest.issues.createComment({
-              issue_number: context.issue.number,
+              issue_number: prNumber,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `🚀 **Preview Deployment Triggered!**\n\nYour frontend changes are being built. Once ready, you can view them here:\n${previewUrl}\n\n*Note: It may take a minute for the container to start.*`
+              body: ` **Preview Deployment Triggered!**\n\nYour frontend changes are being built. Once ready, you can view them here:\n${previewUrl}\n\n*Note: It may take a minute for the container to start.*`
             })
