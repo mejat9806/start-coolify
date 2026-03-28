@@ -1,20 +1,14 @@
-import { defineConfig } from 'vite'
-import { devtools } from '@tanstack/devtools-vite'
-import tsconfigPaths from 'vite-tsconfig-paths'
+import { tanstackStart } from '@tanstack/react-start/plugin/vite';
+import viteReact from '@vitejs/plugin-react';
+import { nitro } from 'nitro/vite';
+import tsConfigPaths from 'vite-tsconfig-paths';
+import { defineConfig } from 'vitest/config';
 
-import { tanstackStart } from '@tanstack/react-start/plugin/vite'
-
-import viteReact from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
-
-const config = defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
-    devtools(),
-    tsconfigPaths({ projects: ['./tsconfig.json'] }),
-    tailwindcss(),
-    tanstackStart(),
+    tsConfigPaths({ projects: ['./tsconfig.json'] }),
+    tanstackStart({ srcDirectory: 'src' }),
+    mode === 'production' ? nitro() : null, // Using the nitro plugin breaks vitest, so only enable it in production
     viteReact(),
   ],
-})
-
-export default config
+}));
