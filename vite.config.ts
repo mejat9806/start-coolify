@@ -16,7 +16,8 @@ export default defineConfig(({ mode }) => ({
     tanstackStart(),
     mode === 'production'
       ? nitro({
-          serveStatic: true,
+          serveStatic: 'node',
+          preset: 'nodeServer',
           routeRules: {
             '/assets/**': {
               headers: {
