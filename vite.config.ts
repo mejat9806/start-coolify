@@ -1,32 +1,30 @@
 import { defineConfig } from 'vite';
 import { devtools } from '@tanstack/devtools-vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
-import { nitro } from 'nitro/vite';
-
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
-
 import viteReact from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 
-export default defineConfig(({ mode }) => ({
+export default defineConfig({
   plugins: [
     devtools(),
     tsconfigPaths({ projects: ['./tsconfig.json'] }),
     tailwindcss(),
-    tanstackStart(),
-    mode === 'production'
-      ? nitro({
-          serveStatic: 'node',
-          preset: 'nodeServer',
-          routeRules: {
-            '/assets/**': {
-              headers: {
-                'cache-control': 'public, max-age=31536000, immutable',
-              },
+    tanstackStart({
+      // We cast to any because the TanStack Start types
+      // sometimes hide the underlying Nitro server options
+      server: {
+        preset: 'node-server',
+        serveStatic: true,
+        routeRules: {
+          '/assets/**': {
+            headers: {
+              'cache-control': 'public, max-age=31536000, immutable',
             },
           },
-        })
-      : null,
+        },
+      } as any,
+    }),
     viteReact(),
   ],
-}));
+});
