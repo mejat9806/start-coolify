@@ -1,0 +1,8 @@
+[phases.setup]
+nixPkgs = ["nodePackages.nodejs_22"] # Ensures the correct Node version
+
+[phases.build]
+cmds = ["npm install", "npm run build"]
+
+[start]
+cmd = "node .output/server/index.mjs" # Tells Dockploy to run the server, not Caddy
