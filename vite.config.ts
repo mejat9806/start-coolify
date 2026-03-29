@@ -9,7 +9,6 @@ import viteReact from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig(({ mode }) => ({
-  server: {},
   plugins: [
     devtools(),
     tsconfigPaths({ projects: ['./tsconfig.json'] }),
@@ -17,8 +16,9 @@ export default defineConfig(({ mode }) => ({
     tanstackStart(),
     mode === 'production'
       ? nitro({
+          serveStatic: true,
           routeRules: {
-            '/dist/client/assets': {
+            '/assets/**': {
               headers: {
                 'cache-control': 'public, max-age=31536000, immutable',
               },
