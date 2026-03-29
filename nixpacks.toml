@@ -2,7 +2,9 @@
 nixPkgs = ["nodejs_22"]
 
 [phases.build]
-cmds = ["npm install", "npm run build"]
+# We add a check to see where the output actually went
+cmds = ["npm ci", "npm run build", "ls -R .output"] 
 
 [start]
-cmd = "NODE_ENV=production HOST=0.0.0.0 PORT=3000 node .output/server/index.mjs"
+# We use ./app/.output to be absolutely certain of the path
+cmd = "NODE_ENV=production HOST=0.0.0.0 PORT=3000 node /app/.output/server/index.mjs"
