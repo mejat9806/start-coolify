@@ -10,7 +10,7 @@
   },
   "scripts": {
     "dev": "vite dev --port 3000",
-    "build": "vite build",
+    "build": "rm -rf .output && vite build",
     "preview": "vite preview",
     "start": "node .output/server/index.mjs",
     "test": "vitest run"
