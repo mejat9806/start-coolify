@@ -30,7 +30,19 @@ export const Route = createRootRoute({
         title: 'TanStack Start Starter',
       },
     ],
-    links: [],
+    links: [
+      { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+      {
+        rel: 'preconnect',
+        href: 'https://fonts.gstatic.com',
+        crossOrigin: 'anonymous',
+      },
+      {
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap',
+      },
+      { rel: 'stylesheet', href: appCss },
+    ],
   }),
   shellComponent: RootDocument,
 });
@@ -41,17 +53,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <style dangerouslySetInnerHTML={{ __html: CRITICAL_CSS }} />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap"
-        />
-        <link rel="stylesheet" href={appCss} />
         <HeadContent />
       </head>
       <body className="font-sans antialiased [overflow-wrap:anywhere] selection:bg-red-500">
