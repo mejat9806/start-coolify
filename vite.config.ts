@@ -14,7 +14,7 @@ export default defineConfig(({ mode }) => ({
     tsconfigPaths({ projects: ['./tsconfig.json'] }),
     tailwindcss(),
     tanstackStart(),
-    mode === 'production' ? nitro() : null,
+    // mode === 'production' ? nitro() : null,
     viteReact(),
   ],
 }));
