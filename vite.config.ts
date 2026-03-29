@@ -11,18 +11,15 @@ export default defineConfig({
     tsconfigPaths({ projects: ['./tsconfig.json'] }),
     tailwindcss(),
     tanstackStart({
-      // We cast to any because the TanStack Start types
-      // sometimes hide the underlying Nitro server options
       server: {
-        preset: 'node-server',
-        serveStatic: true,
-        routeRules: {
-          '/assets/**': {
-            headers: {
-              'cache-control': 'public, max-age=31536000, immutable',
-            },
+        // Tell Nitro that the public assets are in dist/client
+        publicAssets: [
+          {
+            dir: './dist/client',
+            maxAge: 31536000,
           },
-        },
+        ],
+        serveStatic: true,
       } as any,
     }),
     viteReact(),
