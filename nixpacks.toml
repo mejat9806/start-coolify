@@ -7,4 +7,4 @@ cmds = ["npm ci", "npm run build", "ls -R dist"]
 
 [start]
 # Point to the actual file created in your log: dist/server/server.js
-cmd = "NODE_ENV=production HOST=0.0.0.0 PORT=3000 node dist/server/server.js"
+cmd = "HOST=0.0.0.0 PORT=3000 node .output/server/index.mjs"
