@@ -1,7 +1,9 @@
 name: PullPreview
 on:
+  schedule:
+    - cron: '30 */4 * * *' # Recommended: Cleanup "zombie" instances every 4 hours
   pull_request:
-    types: [labeled, opened, synchronize, reopened]
+    types: [labeled, unlabeled, synchronize, opened, reopened, closed]
 
 permissions:
   contents: read
@@ -9,8 +11,14 @@ permissions:
 
 jobs:
   deploy:
-    if: contains(github.event.pull_request.labels.*.name, 'pullpreview')
+    if: |
+      github.event_name == 'schedule' ||
+      contains(github.event.pull_request.labels.*.name, 'pullpreview') ||
+      github.event.action == 'unlabeled' || 
+      github.event.action == 'closed'
+
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
@@ -37,5 +45,5 @@ jobs:
         with:
           app_path: .
           deployment_target: compose
-          instance_type: nano
+          instance_type: nano # 512MB RAM
           ttl: 1h
