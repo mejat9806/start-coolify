@@ -6,6 +6,7 @@ on:
     types: [labeled, unlabeled, synchronize, closed, reopened, opened]
 
 permissions:
+  id-token: write
   contents: read
   pull-requests: write
 
@@ -17,6 +18,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      # STEP 1: This loads the credentials into the runner's environment
+      # PullPreview will automatically find AWS_ACCESS_KEY_ID here.
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -24,6 +27,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-southeast-1
 
+      # STEP 2: Run PullPreview WITHOUT the problematic 'env:' block
       - uses: pullpreview/action@v6
         with:
           deployment_target: compose
