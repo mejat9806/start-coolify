@@ -14,6 +14,10 @@ jobs:
     if: github.event_name == 'schedule' || github.event.label.name == 'pullpreview' || contains(github.event.pull_request.labels.*.name, 'pullpreview')
     runs-on: ubuntu-slim
     timeout-minutes: 30
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ap-southeast-1
     steps:
       - uses: actions/checkout@v6
       - uses: pullpreview/action@v6
@@ -21,9 +25,5 @@ jobs:
           deployment_target: compose
           app_path: .
           admins: '@collaborators/push'
-          instance_type: micro
+          instance_type: nano
           ttl: 1h
-        env:
-          AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
-          AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
-          AWS_REGION: 'ap-southeast-1'
