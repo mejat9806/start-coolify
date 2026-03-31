@@ -1,8 +1,14 @@
 version: '3.8'
 services:
   web:
-    image: nginx:alpine
+    image: node:20-alpine
     ports:
-      - '80:80'
+      - '80:3000'
+    working_dir: /app
     volumes:
-      - .:/usr/share/nginx/html:ro
+      - .:/app
+    command: node .output/server/index.mjs
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOST=0.0.0.0
