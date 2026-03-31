@@ -1,7 +1,7 @@
 name: PullPreview
 on:
   schedule:
-    - cron: '30 */4 * * *' # Recommended: Cleanup "zombie" instances every 4 hours
+    - cron: '30 */4 * * *'
   pull_request:
     types: [labeled, unlabeled, synchronize, opened, reopened, closed]
 
@@ -23,15 +23,18 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup Node.js
+        if: github.event.action != 'unlabeled' && github.event.action != 'closed' && github.event_name != 'schedule'
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
 
       - name: Install dependencies
+        if: github.event.action != 'unlabeled' && github.event.action != 'closed' && github.event_name != 'schedule'
         run: npm install
 
       - name: Build project
+        if: github.event.action != 'unlabeled' && github.event.action != 'closed' && github.event_name != 'schedule'
         run: npm run build
 
       - name: Configure AWS Credentials
@@ -45,5 +48,5 @@ jobs:
         with:
           app_path: .
           deployment_target: compose
-          instance_type: nano # 512MB RAM
+          instance_type: nano
           ttl: 1h
