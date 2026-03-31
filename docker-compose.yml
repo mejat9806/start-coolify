@@ -4,6 +4,5 @@ services:
     image: nginx:alpine
     ports:
       - '80:80'
-    environment:
-      - APP_NAME=PreviewApp
-      - DEBUG=$${DEBUG_MODE:-false}
+    volumes:
+      - .:/usr/share/nginx/html:ro
