@@ -3,7 +3,7 @@ on:
   schedule:
     - cron: '30 */4 * * *'
   pull_request:
-    types: [labeled, unlabeled, synchronize, closed, reopened, opened]
+    types: [labeled, unlabeled, synchronize, opened, reopened, closed]
 
 permissions:
   contents: read
@@ -11,19 +11,42 @@ permissions:
 
 jobs:
   deploy:
-    if: github.event_name == 'schedule' || github.event.label.name == 'pullpreview' || contains(github.event.pull_request.labels.*.name, 'pullpreview')
-    runs-on: ubuntu-slim
+    if: |
+      github.event_name == 'schedule' ||
+      contains(github.event.pull_request.labels.*.name, 'pullpreview') ||
+      github.event.action == 'unlabeled' || 
+      github.event.action == 'closed'
+
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        if: github.event.action != 'unlabeled' && github.event.action != 'closed' && github.event_name != 'schedule'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        if: github.event.action != 'unlabeled' && github.event.action != 'closed' && github.event_name != 'schedule'
+        run: npm install
+
+      - name: Build project
+        if: github.event.action != 'unlabeled' && github.event.action != 'closed' && github.event_name != 'schedule'
+        run: npm run build
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-southeast-1
+
       - uses: pullpreview/action@v6
         with:
-          deployment_target: compose
           app_path: .
-          admins: '@collaborators/push'
-          instance_type: micro
+          deployment_target: compose
+          instance_type: nano
           ttl: 1h
-        env:
-          AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
-          AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
-          AWS_REGION: 'ap-southeast-1'
