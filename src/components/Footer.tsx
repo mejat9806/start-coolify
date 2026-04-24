@@ -1,5 +1,5 @@
 export default function Footer() {
-  const year = new Date().getFullYear()
+  const year = new Date().getFullYear();
 
   return (
     <footer className="mt-20 border-t border-[var(--line)] px-4 pb-14 pt-10 text-[var(--sea-ink-soft)]">
@@ -7,7 +7,9 @@ export default function Footer() {
         <p className="m-0 text-sm">
           &copy; {year} Your name here. All rights reserved.
         </p>
-        <p className="island-kicker m-0">Built with TanStack Start</p>
+        <p className="island-kicker m-0">
+          Built with TanStack Startdasdasdsadasd
+        </p>
       </div>
       <div className="mt-4 flex justify-center gap-4">
         <a
@@ -40,5 +42,5 @@ export default function Footer() {
         </a>
       </div>
     </footer>
-  )
+  );
 }
