@@ -1,9 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
 
-export const Route = createFileRoute('/about')({
-  component: About,
-})
-
+// Extract the About component for testing
 function About() {
   return (
     <main className="page-wrap px-4 py-12">
@@ -19,5 +17,22 @@ function About() {
         </p>
       </section>
     </main>
-  )
+  );
 }
+
+describe('About Component', () => {
+  it('renders the About page heading', () => {
+    render(<About />);
+    expect(screen.getByText(/small starter/i)).toBeInTheDocument();
+  });
+
+  it('contains the introduction paragraph', () => {
+    render(<About />);
+    expect(screen.getByText(/type-safe routing/i)).toBeInTheDocument();
+  });
+
+  it('renders About page structure', () => {
+    render(<About />);
+    expect(screen.getByRole('main')).toBeInTheDocument();
+  });
+});

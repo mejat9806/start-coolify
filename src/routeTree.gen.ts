@@ -9,10 +9,22 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SearchRouteImport } from './routes/search'
+import { Route as AnimeRouteImport } from './routes/anime'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AnimeIdRouteImport } from './routes/anime.$id'
 
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnimeRoute = AnimeRouteImport.update({
+  id: '/anime',
+  path: '/anime',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -24,43 +36,64 @@ const IndexRoute = IndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const AnimeIdRoute = AnimeIdRouteImport.update({
-  id: '/anime/$id',
-  path: '/anime/$id',
-  getParentRoute: () => rootRouteImport,
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AnimeRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/anime': typeof AnimeRouteWithChildren
+  '/search': typeof SearchRoute
   '/anime/$id': typeof AnimeIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/anime': typeof AnimeRouteWithChildren
+  '/search': typeof SearchRoute
   '/anime/$id': typeof AnimeIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/anime': typeof AnimeRouteWithChildren
+  '/search': typeof SearchRoute
   '/anime/$id': typeof AnimeIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/anime/$id'
+  fullPaths: '/' | '/about' | '/anime' | '/search' | '/anime/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/anime/$id'
-  id: '__root__' | '/' | '/about' | '/anime/$id'
+  to: '/' | '/about' | '/anime' | '/search' | '/anime/$id'
+  id: '__root__' | '/' | '/about' | '/anime' | '/search' | '/anime/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  AnimeIdRoute: typeof AnimeIdRoute
+  AnimeRoute: typeof AnimeRouteWithChildren
+  SearchRoute: typeof SearchRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/anime': {
+      id: '/anime'
+      path: '/anime'
+      fullPath: '/anime'
+      preLoaderRoute: typeof AnimeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -77,18 +110,29 @@ declare module '@tanstack/react-router' {
     }
     '/anime/$id': {
       id: '/anime/$id'
-      path: '/anime/$id'
+      path: '/$id'
       fullPath: '/anime/$id'
       preLoaderRoute: typeof AnimeIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AnimeRoute
     }
   }
 }
 
+interface AnimeRouteChildren {
+  AnimeIdRoute: typeof AnimeIdRoute
+}
+
+const AnimeRouteChildren: AnimeRouteChildren = {
+  AnimeIdRoute: AnimeIdRoute,
+}
+
+const AnimeRouteWithChildren = AnimeRoute._addFileChildren(AnimeRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  AnimeIdRoute: AnimeIdRoute,
+  AnimeRoute: AnimeRouteWithChildren,
+  SearchRoute: SearchRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

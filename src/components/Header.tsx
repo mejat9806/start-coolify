@@ -1,28 +1,63 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
+import { useState } from 'react'
 import ThemeToggle from './ThemeToggle'
 
 export default function Header() {
+  const [query, setQuery] = useState('')
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const navigate = useNavigate()
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (query.trim()) {
+      navigate({ to: '/search', search: { q: query.trim() } })
+      setQuery('')
+    }
+  }
+
+  const handleMobileSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (query.trim() && window.innerWidth < 640) {
+      navigate({ to: '/search', search: { q: query.trim() } })
+      setQuery('')
+      setMobileMenuOpen(false)
+    }
+  }
+
   return (
-    <header className="sticky top-0 z-50 border-b border-[var(--line)] bg-[var(--header-bg)] px-4 backdrop-blur-lg">
-      <nav className="page-wrap flex flex-wrap items-center gap-x-3 gap-y-2 py-3 sm:py-4">
+    <header className="sticky top-0 z-50 border-b border-[var(--line)] bg-[var(--header-bg)] px-4 backdrop-blur-xl">
+      {/* Top row: Brand + actions */}
+      <div className="page-wrap flex items-center gap-3 py-4">
         <h2 className="m-0 flex-shrink-0 text-base font-semibold tracking-tight">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 rounded-full border border-[var(--chip-line)] bg-[var(--chip-bg)] px-3 py-1.5 text-sm text-[var(--sea-ink)] no-underline shadow-[0_8px_24px_rgba(30,90,72,0.08)] sm:px-4 sm:py-2"
+            className="inline-flex items-center gap-2 rounded-full border border-[var(--chip-line)] bg-[var(--chip-bg)] px-3 py-1.5 text-sm text-[var(--sea-ink)] no-underline transition hover:bg-[var(--lagoon)] sm:px-4 sm:py-2"
           >
-            <span className="h-2 w-2 rounded-full bg-[linear-gradient(90deg,#56c6be,#7ed3bf)]" />
-            TanStack Start
+            <span className="h-2 w-2 rounded-full bg-gradient-to-r from-[#56c6be] to-[#7ed3bf]" />
+            My App
           </Link>
         </h2>
 
-        <div className="ml-auto flex items-center gap-1.5 sm:ml-0 sm:gap-2">
+        {/* Mobile search - visible only on small screens */}
+        <form onSubmit={handleMobileSearch} className="flex flex-1 sm:hidden">
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search..."
+            className="w-full rounded-full border border-[var(--line)] bg-[var(--header-bg)] px-3 py-1.5 text-sm text-[var(--sea-ink)] outline-none transition focus:border-[var(--lagoon-deep)]"
+          />
+        </form>
+
+        <div className="ml-auto flex items-center gap-1.5">
+          {/* Social icons - hidden on mobile */}
           <a
-            href="https://x.com/tan_stack"
+            href="#"
             target="_blank"
             rel="noreferrer"
             className="hidden rounded-xl p-2 text-[var(--sea-ink-soft)] transition hover:bg-[var(--link-bg-hover)] hover:text-[var(--sea-ink)] sm:block"
           >
-            <span className="sr-only">Follow TanStack on X</span>
+            <span className="sr-only">Follow on X</span>
             <svg viewBox="0 0 16 16" aria-hidden="true" width="24" height="24">
               <path
                 fill="currentColor"
@@ -31,12 +66,12 @@ export default function Header() {
             </svg>
           </a>
           <a
-            href="https://github.com/TanStack"
+            href="#"
             target="_blank"
             rel="noreferrer"
             className="hidden rounded-xl p-2 text-[var(--sea-ink-soft)] transition hover:bg-[var(--link-bg-hover)] hover:text-[var(--sea-ink)] sm:block"
           >
-            <span className="sr-only">Go to TanStack GitHub</span>
+            <span className="sr-only">Go to GitHub</span>
             <svg viewBox="0 0 16 16" aria-hidden="true" width="24" height="24">
               <path
                 fill="currentColor"
@@ -46,9 +81,94 @@ export default function Header() {
           </a>
 
           <ThemeToggle />
+
+          {/* Mobile menu toggle */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+            className="ml-1 rounded-lg p-1.5 text-[var(--sea-ink-soft)] hover:bg-[var(--link-bg-hover)] sm:hidden"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="24"
+              height="24"
+              fill="currentColor"
+            >
+              <rect x="3" y="6" width="18" height="2" rx="1" />
+              <rect x="3" y="12" width="18" height="2" rx="1" />
+              <rect x="3" y="18" width="18" height="2" rx="1" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Navigation row + desktop search */}
+      <nav
+        className={`page-wrap ${
+          mobileMenuOpen ? 'block' : 'hidden'
+        } sm:block`}
+      >
+        {/* Desktop search - hidden on mobile */}
+        <form
+          onSubmit={handleSearch}
+          className="mb-4 hidden flex-1 items-center gap-2 sm:mx-auto sm:flex"
+        >
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search anime..."
+            className="w-full max-w-sm rounded-full border border-[var(--line)] bg-[var(--header-bg)] px-4 py-1.5 text-sm text-[var(--sea-ink)] outline-none transition focus:border-[var(--lagoon-deep)]"
+          />
+          <button
+            type="submit"
+            className="hidden rounded-full bg-[var(--lagoon-deep)] px-4 py-1.5 text-sm font-semibold text-white transition hover:opacity-90 sm:block"
+          >
+            Search
+          </button>
+        </form>
+
+        {/* Mobile navigation links and search */}
+        <div className="flex flex-col gap-3 pb-3 sm:hidden">
+          <form onSubmit={handleMobileSearch}>
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search anime..."
+              className="w-full rounded-full border border-[var(--line)] bg-[var(--header-bg)] px-4 py-2 text-sm text-[var(--sea-ink)] outline-none transition focus:border-[var(--lagoon-deep)]"
+            />
+          </form>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm font-semibold">
+            <Link
+              to="/"
+              className="nav-link"
+              activeProps={{ className: 'nav-link is-active' }}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Home
+            </Link>
+            <Link
+              to="/about"
+              className="nav-link"
+              activeProps={{ className: 'nav-link is-active' }}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              About
+            </Link>
+            <a
+              href="https://docs.example.com"
+              className="nav-link"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Docs
+            </a>
+          </div>
         </div>
 
-        <div className="order-3 flex w-full flex-wrap items-center gap-x-4 gap-y-1 pb-1 text-sm font-semibold sm:order-2 sm:w-auto sm:flex-nowrap sm:pb-0">
+        {/* Desktop navigation links */}
+        <div className="hidden items-center gap-x-4 gap-y-1 pb-1 text-sm font-semibold sm:pb-0 sm:flex">
           <Link
             to="/"
             className="nav-link"

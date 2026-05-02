@@ -27,17 +27,16 @@ export type AnimeDetail = {
   trailer: { url: string | null; embed_url: string | null };
 };
 
-export const fetchJikan = createServerFn({ method: 'GET' }).handler(
-  async () => {
-    const q = 'naruto';
+export const fetchJikan = createServerFn({ method: 'GET' })
+  .inputValidator((q: string) => q)
+  .handler(async ({ data: q }) => {
     const res = await fetch(
       `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(q)}&limit=5`,
     );
     if (!res.ok) throw new Error(`Jikan API error: ${res.status}`);
     const json = await res.json();
     return json.data as AnimeEntry[];
-  },
-);
+  });
 
 export const fetchAnimeById = createServerFn({ method: 'GET' })
   .inputValidator((id: number) => id)
