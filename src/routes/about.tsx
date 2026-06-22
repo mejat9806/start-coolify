@@ -1,8 +1,8 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/about')({
   component: About,
-})
+});
 
 function About() {
   return (
@@ -15,9 +15,10 @@ function About() {
         <p className="m-0 max-w-3xl text-base leading-8 text-[var(--sea-ink-soft)]">
           TanStack Start gives you type-safe routing, server functions, and
           modern SSR defaults. Use this as a clean foundation, then layer in
-          your own routes, styling, and add-ons.
+          your own routes, styling, and add-ons.asdasdsadasdasd
         </p>
       </section>
+      dasd
     </main>
-  )
+  );
 }
